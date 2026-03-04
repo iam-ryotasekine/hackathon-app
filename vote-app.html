@@ -233,9 +233,65 @@
     .idea-card.hot .rank-badge { background: #ef4444; }
     .idea-card.popular .rank-badge { background: #f59e0b; }
 
+    /* Category select */
+    .form-group select {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+
+    .form-group select:focus { border-color: #3b82f6; }
+
+    /* Category tag on card */
+    .idea-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 99px;
+      margin-bottom: 0.4rem;
+    }
+
+    .tag-ui { background: #dbeafe; color: #1d4ed8; }
+    .tag-feature { background: #dcfce7; color: #15803d; }
+    .tag-efficiency { background: #fef9c3; color: #a16207; }
+    .tag-bugfix { background: #fce7f3; color: #be185d; }
+    .tag-other { background: #f1f5f9; color: #475569; }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+    }
+
+    .filter-btn {
+      padding: 0.4rem 0.85rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 99px;
+      background: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #64748b;
+    }
+
+    .filter-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+    .filter-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
     @media (max-width: 480px) {
       header h1 { font-size: 1.4rem; }
       .idea-card { padding: 1rem; gap: 0.8rem; }
+      .filter-bar { gap: 0.4rem; }
     }
   </style>
 </head>
@@ -254,6 +310,16 @@
         <input type="text" id="title" placeholder="例: AIチャットボットで社内FAQ自動化">
       </div>
       <div class="form-group">
+        <label for="category">カテゴリ</label>
+        <select id="category">
+          <option value="feature">新機能</option>
+          <option value="ui">UI改善</option>
+          <option value="efficiency">効率化</option>
+          <option value="bugfix">バグ修正</option>
+          <option value="other">その他</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label for="desc">説明</label>
         <textarea id="desc" placeholder="アイデアの詳細を書いてください..."></textarea>
       </div>
@@ -265,6 +331,8 @@
       <span id="idea-count"></span>
     </div>
 
+    <div class="filter-bar" id="filter-bar"></div>
+
     <div class="ideas-list" id="ideas-list"></div>
     <div class="empty-state" id="empty-state">
       <div class="icon">💡</div>
@@ -274,6 +342,15 @@
 
   <script>
     const STORAGE_KEY = 'vote-app-ideas';
+    let activeFilter = 'all';
+
+    const CATEGORIES = {
+      feature: '新機能',
+      ui: 'UI改善',
+      efficiency: '効率化',
+      bugfix: 'バグ修正',
+      other: 'その他'
+    };
 
     function loadIdeas() {
       try {
@@ -300,29 +377,55 @@
 
     function formatTime(ts) {
       const d = new Date(ts);
-      return d.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderFilters(ideas) {
+      const bar = document.getElementById('filter-bar');
+      const cats = [...new Set(ideas.map(i => i.category || 'other'))];
+
+      let html = `<button class="filter-btn ${activeFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">すべて</button>`;
+      cats.sort().forEach(cat => {
+        const label = CATEGORIES[cat] || cat;
+        const n = ideas.filter(i => (i.category || 'other') === cat).length;
+        html += `<button class="filter-btn ${activeFilter === cat ? 'active' : ''}" onclick="setFilter('${cat}')">${escapeHtml(label)} (${n})</button>`;
+      });
+      bar.innerHTML = html;
+    }
+
+    function setFilter(cat) {
+      activeFilter = cat;
+      render();
     }
 
     function render() {
-      const ideas = loadIdeas().sort((a, b) => b.votes - a.votes);
+      const allIdeas = loadIdeas().sort((a, b) => b.votes - a.votes);
+      const filtered = activeFilter === 'all' ? allIdeas : allIdeas.filter(i => (i.category || 'other') === activeFilter);
       const list = document.getElementById('ideas-list');
       const empty = document.getElementById('empty-state');
       const count = document.getElementById('idea-count');
 
-      count.textContent = ideas.length ? `${ideas.length} 件のアイデア` : '';
+      renderFilters(allIdeas);
+      count.textContent = allIdeas.length ? `${filtered.length} / ${allIdeas.length} 件` : '';
 
-      if (!ideas.length) {
+      if (!filtered.length) {
         list.innerHTML = '';
         empty.style.display = 'block';
+        empty.querySelector('p').innerHTML = allIdeas.length
+          ? 'このカテゴリにはアイデアがありません。'
+          : 'まだアイデアがありません。<br>最初のアイデアを投稿しましょう！';
         return;
       }
 
       empty.style.display = 'none';
 
-      list.innerHTML = ideas.map((idea, i) => {
+      list.innerHTML = filtered.map((idea, i) => {
         const rank = i + 1;
         const cls = getCardClass(idea.votes, rank);
         const desc = idea.desc ? `<p class="idea-desc">${escapeHtml(idea.desc)}</p>` : '';
+        const cat = idea.category || 'other';
+        const tagCls = 'tag-' + cat;
+        const tagLabel = CATEGORIES[cat] || cat;
         return `
           <div class="idea-card ${cls}">
             <div class="vote-section">
@@ -331,6 +434,7 @@
               <button class="btn-vote" onclick="vote('${idea.id}')" title="いいね">👍</button>
             </div>
             <div class="idea-content">
+              <span class="idea-tag ${tagCls}">${escapeHtml(tagLabel)}</span>
               <div class="idea-title">${escapeHtml(idea.title)}</div>
               ${desc}
               <div class="idea-meta">${formatTime(idea.createdAt)}</div>
@@ -344,8 +448,10 @@
     function addIdea() {
       const titleEl = document.getElementById('title');
       const descEl = document.getElementById('desc');
+      const catEl = document.getElementById('category');
       const title = titleEl.value.trim();
       const desc = descEl.value.trim();
+      const category = catEl.value;
 
       if (!title) {
         alert('タイトルを入力してください');
@@ -358,6 +464,7 @@
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         title,
         desc,
+        category,
         votes: 0,
         createdAt: Date.now()
       });
