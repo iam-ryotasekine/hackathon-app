@@ -7,11 +7,34 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --bg: #f0f2f5;
+      --card-bg: #fff;
+      --text: #333;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --heading: #1e293b;
+      --input-bg: #fff;
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #334155;
+      --heading: #f1f5f9;
+      --input-bg: #334155;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       min-height: 100vh;
-      background: #f0f2f5;
-      color: #333;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
     }
 
     header {
@@ -19,10 +42,27 @@
       color: #fff;
       text-align: center;
       padding: 2rem 1rem;
+      position: relative;
     }
 
     header h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
     header p { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+
+    .btn-dark-toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0.7rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+
+    .btn-dark-toggle:hover { background: rgba(255,255,255,0.25); }
 
     .container {
       max-width: 720px;
@@ -32,7 +72,7 @@
 
     /* Form */
     .form-card {
-      background: #fff;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -42,7 +82,7 @@
     .form-card h2 {
       font-size: 1.1rem;
       margin-bottom: 1rem;
-      color: #1e293b;
+      color: var(--heading);
     }
 
     .form-group { margin-bottom: 1rem; }
@@ -51,7 +91,7 @@
       display: block;
       font-weight: 600;
       font-size: 0.85rem;
-      color: #555;
+      color: var(--text-secondary);
       margin-bottom: 0.3rem;
     }
 
@@ -59,12 +99,14 @@
     .form-group textarea {
       width: 100%;
       padding: 0.65rem 0.9rem;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
       font-size: 0.95rem;
       font-family: inherit;
       outline: none;
       transition: border-color 0.2s;
+      background: var(--input-bg);
+      color: var(--text);
     }
 
     .form-group input:focus,
@@ -102,19 +144,19 @@
 
     .stats h2 {
       font-size: 1.1rem;
-      color: #1e293b;
+      color: var(--heading);
     }
 
     .stats span {
       font-size: 0.85rem;
-      color: #94a3b8;
+      color: var(--text-muted);
     }
 
     /* Idea cards */
     .ideas-list { display: flex; flex-direction: column; gap: 1rem; }
 
     .idea-card {
-      background: #fff;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 1.3rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -122,7 +164,7 @@
       gap: 1rem;
       align-items: flex-start;
       transition: transform 0.2s, box-shadow 0.2s;
-      border-left: 4px solid #e2e8f0;
+      border-left: 4px solid var(--border);
     }
 
     .idea-card:hover {
@@ -145,7 +187,7 @@
     .vote-count {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #1e293b;
+      color: var(--heading);
       line-height: 1;
     }
 
@@ -156,9 +198,9 @@
     .btn-vote {
       margin-top: 0.4rem;
       padding: 0.35rem 0.7rem;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
-      background: #fff;
+      background: var(--card-bg);
       cursor: pointer;
       font-size: 1.1rem;
       transition: all 0.15s;
@@ -178,28 +220,28 @@
     .idea-title {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #1e293b;
+      color: var(--heading);
       margin-bottom: 0.3rem;
       word-break: break-word;
     }
 
     .idea-desc {
       font-size: 0.9rem;
-      color: #64748b;
+      color: var(--text-secondary);
       line-height: 1.5;
       word-break: break-word;
     }
 
     .idea-meta {
       font-size: 0.75rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       margin-top: 0.5rem;
     }
 
     .idea-delete {
       background: none;
       border: none;
-      color: #cbd5e1;
+      color: var(--text-muted);
       cursor: pointer;
       font-size: 1.1rem;
       padding: 0.2rem;
@@ -213,7 +255,7 @@
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
-      color: #94a3b8;
+      color: var(--text-muted);
     }
 
     .empty-state .icon { font-size: 3rem; margin-bottom: 0.5rem; }
@@ -233,16 +275,99 @@
     .idea-card.hot .rank-badge { background: #ef4444; }
     .idea-card.popular .rank-badge { background: #f59e0b; }
 
+    /* Search */
+    .search-box {
+      margin-bottom: 1rem;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.4rem;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      background: var(--card-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 0.8rem center;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus { border-color: #3b82f6; }
+
+    /* Chart */
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 2rem;
+    }
+
+    .chart-card h2 {
+      font-size: 1.1rem;
+      color: var(--heading);
+      margin-bottom: 1rem;
+    }
+
+    .chart-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .chart-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      min-width: 120px;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .chart-bar-track {
+      flex: 1;
+      height: 22px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .chart-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.4s ease;
+      min-width: 2px;
+    }
+
+    .chart-votes {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--heading);
+      min-width: 28px;
+    }
+
+    .chart-empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 1rem;
+    }
+
     /* Category select */
     .form-group select {
       width: 100%;
       padding: 0.65rem 0.9rem;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
       font-size: 0.95rem;
       font-family: inherit;
       outline: none;
-      background: #fff;
+      background: var(--input-bg);
+      color: var(--text);
       transition: border-color 0.2s;
       cursor: pointer;
     }
@@ -275,14 +400,14 @@
 
     .filter-btn {
       padding: 0.4rem 0.85rem;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid var(--border);
       border-radius: 99px;
-      background: #fff;
+      background: var(--card-bg);
       font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
-      color: #64748b;
+      color: var(--text-secondary);
     }
 
     .filter-btn:hover { border-color: #3b82f6; color: #3b82f6; }
@@ -298,6 +423,7 @@
 <body>
 
   <header>
+    <button class="btn-dark-toggle" onclick="toggleDark()" id="dark-btn" title="ダークモード切替">🌙</button>
     <h1>Idea Vote</h1>
     <p>チームのアイデアを投稿して投票しよう</p>
   </header>
@@ -326,9 +452,18 @@
       <button class="btn-submit" onclick="addIdea()">投稿する</button>
     </div>
 
+    <div id="chart-section" class="chart-card" style="display:none;">
+      <h2>投票結果</h2>
+      <div id="chart-content"></div>
+    </div>
+
     <div class="stats">
       <h2>アイデア一覧</h2>
       <span id="idea-count"></span>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="search" placeholder="アイデアを検索..." oninput="render()">
     </div>
 
     <div class="filter-bar" id="filter-bar"></div>
@@ -342,7 +477,20 @@
 
   <script>
     const STORAGE_KEY = 'vote-app-ideas';
+    const DARK_KEY = 'vote-app-dark';
     let activeFilter = 'all';
+
+    // Dark mode
+    if (localStorage.getItem(DARK_KEY) === 'true') {
+      document.body.classList.add('dark');
+      document.getElementById('dark-btn').textContent = '☀️';
+    }
+
+    function toggleDark() {
+      const isDark = document.body.classList.toggle('dark');
+      localStorage.setItem(DARK_KEY, isDark);
+      document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+    }
 
     const CATEGORIES = {
       feature: '新機能',
@@ -398,14 +546,48 @@
       render();
     }
 
+    const BAR_COLORS = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4','#84cc16'];
+
+    function renderChart(ideas) {
+      const section = document.getElementById('chart-section');
+      const content = document.getElementById('chart-content');
+
+      if (!ideas.length || !ideas.some(i => i.votes > 0)) {
+        section.style.display = 'none';
+        return;
+      }
+
+      section.style.display = 'block';
+      const top = ideas.filter(i => i.votes > 0).slice(0, 8);
+      const maxVotes = top[0].votes;
+
+      content.innerHTML = top.map((idea, i) => {
+        const pct = (idea.votes / maxVotes) * 100;
+        const color = BAR_COLORS[i % BAR_COLORS.length];
+        return `
+          <div class="chart-bar-row">
+            <span class="chart-label" title="${escapeHtml(idea.title)}">${escapeHtml(idea.title)}</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:${pct}%;background:${color}"></div>
+            </div>
+            <span class="chart-votes">${idea.votes}</span>
+          </div>`;
+      }).join('');
+    }
+
     function render() {
+      const searchQuery = (document.getElementById('search').value || '').trim().toLowerCase();
       const allIdeas = loadIdeas().sort((a, b) => b.votes - a.votes);
-      const filtered = activeFilter === 'all' ? allIdeas : allIdeas.filter(i => (i.category || 'other') === activeFilter);
+      let filtered = activeFilter === 'all' ? allIdeas : allIdeas.filter(i => (i.category || 'other') === activeFilter);
+      if (searchQuery) {
+        filtered = filtered.filter(i => i.title.toLowerCase().includes(searchQuery));
+      }
       const list = document.getElementById('ideas-list');
       const empty = document.getElementById('empty-state');
       const count = document.getElementById('idea-count');
 
       renderFilters(allIdeas);
+      renderChart(allIdeas);
       count.textContent = allIdeas.length ? `${filtered.length} / ${allIdeas.length} 件` : '';
 
       if (!filtered.length) {
